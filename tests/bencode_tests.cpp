@@ -1,5 +1,5 @@
-#include "doctest.h"
 #include "../src/bencode.hpp"
+#include "doctest.h"
 
 TEST_CASE("decoding strings decode_bencoded_value")
 {
@@ -12,7 +12,8 @@ TEST_CASE("decoding strings decode_bencoded_value")
 
 TEST_CASE("decoding integers decode_bencoded_value")
 {
-	CHECK(decode_bencoded_value("i52e") == "52");
-	CHECK(decode_bencoded_value("i0e") == "0");
-	CHECK(decode_bencoded_value("i-52e") == "-52");
+	CHECK(decode_bencoded_value("i0e").dump() == "0");
+	CHECK(decode_bencoded_value("i52e").dump() == "52");
+	CHECK(decode_bencoded_value("i-52e").dump() == "-52");
+	CHECK_THROWS_AS(decode_bencoded_value("i1"), std::runtime_error);
 }
