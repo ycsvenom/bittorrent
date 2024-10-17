@@ -3,6 +3,7 @@
 
 #include "parse_arguments.hpp"
 #include "decode_command.hpp"
+#include "display_info_command.hpp"
 #include "utils.hpp"
 
 void parse_arguments(int argc, char *argv[])
@@ -11,8 +12,11 @@ void parse_arguments(int argc, char *argv[])
 	if (command == "decode") {
 		decode_command(argc, argv);
 	}
+	else if (command == "info") {
+		display_info_command(argc, argv);
+	}
 	else {
 		std::string message = "unknown command: " + command;
-		exit_with_message(message); 
+		exit_with_message(message);
 	}
 }

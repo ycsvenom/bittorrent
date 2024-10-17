@@ -3,7 +3,7 @@ CFLAGS := -Wall -g
 
 PROG_OUT := torrent.o
 PROG_DIR := src
-PROG_IMPL_FILES := $(addprefix $(PROG_DIR)/,main.cpp parse_arguments.cpp utils.cpp decode_command.cpp bencode.cpp)
+PROG_IMPL_FILES := $(addprefix $(PROG_DIR)/,main.cpp parse_arguments.cpp utils.cpp decode_command.cpp display_info_command.cpp bencode.cpp)
 PROG_FULLNAME := $(PROG_DIR)/$(PROG_OUT)
 
 TEST_OUT := test.o

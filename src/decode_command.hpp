@@ -1,5 +1,5 @@
-#ifndef DECODE_H
-#define DECODE_H
+#ifndef DECODE_COMMAND_H
+#define DECODE_COMMAND_H
 
 void decode_command(int argc, char *argv[]);
 
