@@ -5,14 +5,14 @@
 #include "decode_command.hpp"
 #include "utils.hpp"
 
-void parse(int argc, char *argv[])
+void parse_arguments(int argc, char *argv[])
 {
 	std::string command = argv[1];
 	if (command == "decode") {
-		decodeCommand(argc, argv);
+		decode_command(argc, argv);
 	}
 	else {
 		std::string message = "unknown command: " + command;
-		exitWithMessage(message); 
+		exit_with_message(message); 
 	}
 }

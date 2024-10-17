@@ -1,48 +1,76 @@
 #include "bencode.hpp"
+#include "debug_macros.hpp"
 
-std::string decode(std::string &encodedValue)
-{
-	json decoded_value = decode_bencoded_value(encodedValue);
-	return decoded_value.dump();
-}
+json decode(const std::string &, size_t &);
 
-std::string decode_string(const std::string &encoded_value, int start)
+json decode_string(const std::string &encodedValue, size_t &index)
 {
 	// Example: "5:hello" -> "hello"
-	size_t colon_index = encoded_value.find(':', start);
+	size_t colonIndex = encodedValue.find(':', index);
+	size_t sizeStringLength = colonIndex - index;
 
-	if (colon_index == std::string::npos)
-		throw std::runtime_error("Invalid encoded value: " + encoded_value);
+	if (colonIndex == std::string::npos)
+		throw std::runtime_error("Invalid encoded value: " + encodedValue);
 
-	std::string size_string = encoded_value.substr(start, colon_index);
-	int64_t size = std::atoll(size_string.c_str());
-	std::string str = encoded_value.substr(colon_index + 1, size);
+	std::string sizeString = encodedValue.substr(index, sizeStringLength);
+	int64_t size = std::atoll(sizeString.c_str());
+	std::string str = encodedValue.substr(colonIndex + 1, size);
+	index += sizeStringLength + size;
 
-	return str;
+	return json(str);
 }
 
-int64_t decode_integer(const std::string &encoded_value, int start)
+json decode_integer(const std::string &encodedValue, size_t &index)
 {
 	// Example: "i52e" -> 52
-	size_t end_index = encoded_value.find('e', start);
+	size_t endIndex = encodedValue.find('e', index);
+	size_t numberStringLength = endIndex - index - 1;
 
-	if (end_index == std::string::npos)
-		throw std::runtime_error("Invalid encoded value: " + encoded_value);
+	if (endIndex == std::string::npos)
+		throw std::runtime_error("Invalid encoded value: " + encodedValue);
 
-	std::string number_string = encoded_value.substr(start + 1, end_index);
-	int64_t number = std::atoll(number_string.c_str());
+	std::string numberString = encodedValue.substr(index + 1, numberStringLength);
+	int64_t number = std::atoll(numberString.c_str());
+	index += numberStringLength + 1;
 
-	return number;
+	return json(number);
 }
 
-json decode_bencoded_value(const std::string &encoded_value)
+json decode_list(const std::string &encodedValue, size_t &index)
 {
-	char identifier = encoded_value[0];
+	// Example: "l5:helloi52ee" -> ["hello", 52]
+	std::vector<json> elements;
+
+	while (++index < encodedValue.length() && encodedValue[index] != 'e') {
+		elements.push_back(decode(encodedValue, index));
+	}
+
+	if (index == encodedValue.length() || encodedValue[index] != 'e')
+		throw std::runtime_error("Invalid encoded value: " + encodedValue);
+
+	return json(elements);
+}
+
+json decode(const std::string &encodedValue, size_t &index)
+{
+	json decoded;
+	char identifier = encodedValue[index];
 
 	if (std::isdigit(identifier))
-		return json(decode_string(encoded_value, 0));
+		decoded = decode_string(encodedValue, index);
 	else if (identifier == 'i')
-		return json(decode_integer(encoded_value, 0));
+		decoded = decode_integer(encodedValue, index);
+	else if (identifier == 'l')
+		decoded = decode_list(encodedValue, index);
 	else
-		throw std::runtime_error("Unhandled encoded value: " + encoded_value);
+		throw std::runtime_error("Unhandled encoded value: " + encodedValue);
+
+	return decoded;
+}
+
+json decode_bencoded_value(const std::string &encodedValue)
+{
+	size_t index = 0;
+	json decoded = decode(encodedValue, index);
+	return decoded;
 }

@@ -1,8 +1,4 @@
-#include <cctype>
-#include <cstdlib>
 #include <iostream>
-#include <string>
-#include <vector>
 
 #include "parse_arguments.hpp"
 #include "utils.hpp"
@@ -14,10 +10,10 @@ int main(int argc, char *argv[])
 	std::cerr << std::unitbuf;
 
 	if (argc < 2) {
-		exitWithMessage(argv[0]);
+		exit_with_message(argv[0]);
 	}
 
-	parse(argc, argv);
+	parse_arguments(argc, argv);
 
 	return 0;
 }

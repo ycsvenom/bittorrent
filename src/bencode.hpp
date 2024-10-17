@@ -7,7 +7,6 @@
 
 using json = nlohmann::json;
 
-std::string decode(std::string &encodedValue);
-json decode_bencoded_value(const std::string &encoded_value);
+json decode_bencoded_value(const std::string &encodedValue);
 
 #endif

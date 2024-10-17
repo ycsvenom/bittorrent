@@ -1,25 +1,24 @@
 #include <iostream>
 #include <sstream>
 
-#include "decode_command.hpp"
 #include "bencode.hpp"
+#include "decode_command.hpp"
 #include "utils.hpp"
 
-std::stringstream getDecodeHelp(const std::string& name)
+std::stringstream get_decode_help(const std::string &name)
 {
 	std::stringstream ss;
 	ss << "Usage: " << name << " decode <encoded_value>";
 	return ss;
 }
 
-void decodeCommand(int argc, char *argv[])
+void decode_command(int argc, char *argv[])
 {
 	if (argc < 3) {
-		exitWithMessage(getDecodeHelp(argv[0]));
+		exit_with_message(get_decode_help(argv[0]));
 	}
-	
-	// You can use print statements as follows for debugging, they'll be visible when running tests.
+
 	std::string encoded = argv[2];
-	std::string decoded = decode(encoded);
-	std::cout << decoded << std::endl;
+	json decoded = decode_bencoded_value(encoded);
+	std::cout << decoded.dump() << std::endl;
 }

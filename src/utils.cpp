@@ -15,13 +15,13 @@ void print(const std::stringstream &ss, bool isError)
 	print(ss.str(), isError);
 }
 
-void exitWithMessage(const std::string &text)
+void exit_with_message(const std::string &text)
 {
 	print(text, true);
 	std::exit(1);
 }
 
-void exitWithMessage(const std::stringstream &ss)
+void exit_with_message(const std::stringstream &ss)
 {
-	exitWithMessage(ss.str());
+	exit_with_message(ss.str());
 }
