@@ -75,3 +75,35 @@ TEST_CASE("invaild format")
 	CHECK_THROWS_AS(decode_bencoded_value("li52e"), std::runtime_error);
 	CHECK_THROWS_AS(decode_bencoded_value("l1:h"), std::runtime_error);
 }
+
+// test decoding dictionary
+
+TEST_CASE("empty")
+{
+	CHECK(decode_bencoded_value("de").dump() == "{}");
+}
+
+TEST_CASE("single key")
+{
+	CHECK(decode_bencoded_value("d1:ai1ee").dump() == "{\"a\":1}");
+	CHECK(decode_bencoded_value("d1:a3:abce").dump() == "{\"a\":\"abc\"}");
+	CHECK(decode_bencoded_value("d1:al3:abcee").dump() == "{\"a\":[\"abc\"]}");
+}
+
+TEST_CASE("multi keys")
+{
+	CHECK(decode_bencoded_value("d3:foo3:bar5:helloi52ee").dump() == "{\"foo\":\"bar\",\"hello\":52}");
+	CHECK(decode_bencoded_value("d1:al3:abci12ee1:bi7ee").dump() == "{\"a\":[\"abc\",12],\"b\":7}");
+}
+
+TEST_CASE("nested items")
+{
+	CHECK(decode_bencoded_value("d1:ad3:abci12eee").dump() == "{\"a\":{\"abc\":12}}");
+}
+
+TEST_CASE("invalid format")
+{
+	CHECK_THROWS_AS(decode_bencoded_value("di4ee"), std::runtime_error);
+	CHECK_THROWS_AS(decode_bencoded_value("d1:he"), std::runtime_error);
+	CHECK_THROWS_AS(decode_bencoded_value("d1:hi2e"), std::runtime_error);
+}
