@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 
-#include "parse_arguments.hpp"
 #include "decode_command.hpp"
 #include "display_info_command.hpp"
+#include "parse_arguments.hpp"
 #include "utils.hpp"
 
 void parse_arguments(int argc, char *argv[])

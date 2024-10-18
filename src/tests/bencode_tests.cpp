@@ -1,4 +1,5 @@
-#include "../src/bencode.hpp"
+#include "../lib/bencode/bencode.hpp"
+#include "../lib/nlohmann/json.hpp"
 #include "doctest.h"
 
 // ========== tests for decode_bencoded_value =================================
@@ -47,19 +48,19 @@ TEST_CASE("empty")
 	CHECK(decode_bencoded_value("le").dump() == "[]");
 }
 
-TEST_CASE("single element homogenous")
+TEST_CASE("single element")
 {
 	CHECK(decode_bencoded_value("li52ee").dump() == "[52]");
 	CHECK(decode_bencoded_value("l5:helloe").dump() == "[\"hello\"]");
 }
 
-TEST_CASE("multi element homogenous")
+TEST_CASE("multi element homogeneous")
 {
 	CHECK(decode_bencoded_value("li52ei53ee").dump() == "[52,53]");
 	CHECK(decode_bencoded_value("l5:hello5:worlde").dump() == "[\"hello\",\"world\"]");
 }
 
-TEST_CASE("multi element heterogenous")
+TEST_CASE("multi element heterogeneous")
 {
 	CHECK(decode_bencoded_value("l5:helloi52ee").dump() == "[\"hello\",52]");
 	CHECK(decode_bencoded_value("li52e5:helloe").dump() == "[52,\"hello\"]");
@@ -106,4 +107,107 @@ TEST_CASE("invalid format")
 	CHECK_THROWS_AS(decode_bencoded_value("di4ee"), std::runtime_error);
 	CHECK_THROWS_AS(decode_bencoded_value("d1:he"), std::runtime_error);
 	CHECK_THROWS_AS(decode_bencoded_value("d1:hi2e"), std::runtime_error);
+}
+
+// ========== tests for decode_bencoded_value =================================
+
+// test encoding strings
+
+TEST_CASE("empty")
+{
+	json elem = "";
+	CHECK(encode_json_to_bencode(elem) == "0:");
+}
+
+TEST_CASE("non-empty")
+{
+	json elem = "hello";
+	CHECK(encode_json_to_bencode(elem) == "5:hello");
+}
+
+// test encoding integer
+
+TEST_CASE("zero")
+{
+	json elem = 0;
+	CHECK(encode_json_to_bencode(elem) == "i0e");
+}
+
+TEST_CASE("positive")
+{
+	json elem = 5;
+	CHECK(encode_json_to_bencode(elem) == "i5e");
+}
+
+TEST_CASE("negative")
+{
+	json elem = -5;
+	CHECK(encode_json_to_bencode(elem) == "i-5e");
+}
+
+// test encoding list
+
+TEST_CASE("empty")
+{
+	json list = json::array();
+	CHECK(encode_json_to_bencode(list) == "le");
+}
+
+TEST_CASE("single element")
+{
+	json listInt = {1};
+	json listStr = {"hello"};
+	CHECK(encode_json_to_bencode(listInt) == "li1ee");
+	CHECK(encode_json_to_bencode(listStr) == "l5:helloe");
+}
+
+TEST_CASE("multi elements homogenous")
+{
+	json listInt = {1, 2, 3};
+	json listStr = {"hello", "world"};
+	CHECK(encode_json_to_bencode(listInt) == "li1ei2ei3ee");
+	CHECK(encode_json_to_bencode(listStr) == "l5:hello5:worlde");
+}
+
+TEST_CASE("multi elements heterogeneous")
+{
+	json list = {1, "hello", 2, "world"};
+	CHECK(encode_json_to_bencode(list) == "li1e5:helloi2e5:worlde");
+}
+
+TEST_CASE("nested")
+{
+	json list = {1, {"hello", 2}, "world"};
+	CHECK(encode_json_to_bencode(list) == "li1el5:helloi2ee5:worlde");
+}
+
+// test encoding dictionary
+
+TEST_CASE("empty")
+{
+	json dict = json::object();
+	CHECK(encode_json_to_bencode(dict) == "de");
+}
+
+TEST_CASE("single item")
+{
+	json dict = {{"one", 1}};
+	CHECK(encode_json_to_bencode(dict) == "d3:onei1ee");
+}
+
+TEST_CASE("multi items")
+{
+	json dict = {
+		{"one", 1},
+		{"two", 2},
+	};
+	CHECK(encode_json_to_bencode(dict) == "d3:onei1e3:twoi2ee");
+}
+
+TEST_CASE("nested")
+{
+	json dict = {
+		{"one", {{"two", 2}}},
+	};
+	CHECK(encode_json_to_bencode(dict) == "d3:oned3:twoi2eee");
 }

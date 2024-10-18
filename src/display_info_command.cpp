@@ -3,9 +3,9 @@
 #include <sstream>
 #include <string>
 
-#include "bencode.hpp"
+#include "lib/bencode/bencode.hpp"
 #include "display_info_command.hpp"
-#include "lib/nlohmann/json.hpp"
+#include "torrent_reader.hpp"
 #include "utils.hpp"
 
 std::stringstream get_display_info_help(const std::string &name)
@@ -22,15 +22,12 @@ void display_info_command(int argc, char *argv[])
 	}
 
 	std::string path = argv[2];
-	std::ifstream file(path, std::ios_base::in);
-	std::stringstream ss;
-	ss << file.rdbuf();
+	json torrent = read_torrent_file(path);
+	std::string announce = read_torrent_annouce(torrent);
+	size_t infoLength = read_torrent_info_length(torrent);
+	std::string infoHash = calc_torrent_info_hash(torrent);
 
-	json decoded = decode_bencoded_value(ss.str());
-	json announce = decoded["announce"];
-	json info = decoded["info"];
-	json infoLength = info["length"];
-
-	std::cout << "Tracker URL: " << announce.get<std::string>() << std::endl;
-	std::cout << "Length: " << infoLength.dump() << std::endl;
+	std::cout << "Tracker URL: " << announce << std::endl;
+	std::cout << "Length: " << infoLength << std::endl;
+	std::cout << "Info Hash: " << infoHash << std::endl;
 }

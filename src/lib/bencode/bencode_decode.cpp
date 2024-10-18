@@ -1,14 +1,10 @@
+#include "../../debug_macros.hpp"
 #include "bencode.hpp"
-#include "debug_macros.hpp"
 
-// end of segment
-#define EOS 'e'
-// string seperator
-#define STR_SEP ':'
 #define IS_STR(id) std::isdigit(id)
-#define IS_INT(id) id == 'i'
-#define IS_LIST(id) id == 'l'
-#define IS_DICT(id) id == 'd'
+#define IS_INT(id) id == INT_IDEN
+#define IS_LIST(id) id == LIST_IDEN
+#define IS_DICT(id) id == DICT_IDEN
 
 json decode(const std::string &, size_t &);
 

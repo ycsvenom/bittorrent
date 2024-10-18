@@ -3,13 +3,20 @@ CFLAGS := -Wall -g
 
 PROG_OUT := torrent.o
 PROG_DIR := src
-PROG_IMPL_FILES := $(addprefix $(PROG_DIR)/,main.cpp parse_arguments.cpp utils.cpp decode_command.cpp display_info_command.cpp bencode.cpp)
+LIB_DIR := $(PROG_DIR)/lib
 PROG_FULLNAME := $(PROG_DIR)/$(PROG_OUT)
+PROG_IMPL_FILES := \
+$(wildcard $(PROG_DIR)/*.cpp) \
+$(wildcard $(LIB_DIR)/hash/*.cpp) \
+$(wildcard $(LIB_DIR)/bencode/*.cpp)
 
 TEST_OUT := test.o
-TEST_DIR := tests
-TEST_IMPL_FILES := $(addprefix $(TEST_DIR)/,test.cpp bencode_tests.cpp) $(PROG_DIR)/bencode.cpp
+TEST_DIR := $(PROG_DIR)/tests
 TEST_FULLNAME := $(TEST_DIR)/$(TEST_OUT)
+TEST_IMPL_FILES := \
+$(wildcard $(TEST_DIR)/*_tests.cpp) \
+$(wildcard $(LIB_DIR)/hash/*.cpp) \
+$(wildcard $(LIB_DIR)/bencode/*.cpp)
 
 define COMPILE =
 $(CC) $(1) -o $(2) $(CFLAGS);
@@ -18,7 +25,7 @@ endef
 all: clean
 
 debug:
-	echo $(PROG_IMPL_FILES)
+	echo "there is nothing to debug"
 
 test:
 	$(call COMPILE,$(TEST_IMPL_FILES),$(TEST_FULLNAME))
