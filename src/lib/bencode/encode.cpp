@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "bencode.hpp"
-#include "../../debug_macros.hpp"
+#include <debug_macros.hpp>
 
 std::string encode_string_to_bencode(const json &str)
 {
@@ -52,7 +52,7 @@ std::string encode_dict_to_bencode(const json &str)
 std::string encode_json_to_bencode(const json &value)
 {
 	std::string encoded;
-    
+
 	if (value.is_string())
 		encoded = encode_string_to_bencode(value);
 	else if (value.is_number_integer())

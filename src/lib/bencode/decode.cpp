@@ -1,5 +1,5 @@
-#include "../../debug_macros.hpp"
 #include "bencode.hpp"
+#include <debug_macros.hpp>
 
 #define IS_STR(id) std::isdigit(id)
 #define IS_INT(id) id == INT_IDEN

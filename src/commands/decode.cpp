@@ -1,9 +1,9 @@
 #include <iostream>
 #include <sstream>
 
-#include "lib/bencode/bencode.hpp"
-#include "decode_command.hpp"
-#include "utils.hpp"
+#include "decode.hpp"
+#include <lib/bencode/bencode.hpp>
+#include <lib/utils/utils.hpp>
 
 std::stringstream get_decode_help(const std::string &name)
 {

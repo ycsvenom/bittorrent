@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "parse_arguments.hpp"
-#include "utils.hpp"
+#include <lib/utils/utils.hpp>
 
 int main(int argc, char *argv[])
 {

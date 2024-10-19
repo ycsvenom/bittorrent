@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "../nlohmann/json.hpp"
+#include <lib/nlohmann/json.hpp>
 
 // end of segment
 #define EOS 'e'

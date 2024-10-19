@@ -1,6 +1,6 @@
-#include "../lib/bencode/bencode.hpp"
-#include "../lib/nlohmann/json.hpp"
 #include "doctest.h"
+#include <lib/bencode/bencode.hpp>
+#include <lib/nlohmann/json.hpp>
 
 // ========== tests for decode_bencoded_value =================================
 

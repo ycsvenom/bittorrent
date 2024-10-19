@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <iostream>
 
 #include "utils.hpp"
@@ -24,4 +25,14 @@ void exit_with_message(const std::string &text)
 void exit_with_message(const std::stringstream &ss)
 {
 	exit_with_message(ss.str());
+}
+
+std::string binary_string_to_hex(const std::string binaryString)
+{
+	std::stringstream ss;
+	for (size_t i = 0; i < binaryString.length(); i++) {
+		unsigned char c = binaryString[i];
+		ss << std::setfill('0') << std::setw(2) << std::hex << (int)c;
+	}
+	return ss.str();
 }

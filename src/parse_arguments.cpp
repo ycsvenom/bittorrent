@@ -1,10 +1,10 @@
 #include <iostream>
 #include <string>
 
-#include "decode_command.hpp"
-#include "display_info_command.hpp"
 #include "parse_arguments.hpp"
-#include "utils.hpp"
+#include <commands/decode.hpp>
+#include <commands/display_info.hpp>
+#include <lib/utils/utils.hpp>
 
 void parse_arguments(int argc, char *argv[])
 {
