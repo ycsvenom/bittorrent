@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include <lib/network/network.hpp>
 #include <lib/nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -22,6 +23,7 @@ public:
 
 	Torrent(const std::string &path);
 	std::vector<std::string> getPeers();
+	std::string handshake(const IpAddress &address) const;
 };
 
 #endif

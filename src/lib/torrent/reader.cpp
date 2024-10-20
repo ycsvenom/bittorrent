@@ -1,5 +1,7 @@
+#include <arpa/inet.h>
 #include <fstream>
 #include <iomanip>
+#include <sys/socket.h>
 
 #include "torrent.hpp"
 #include <debug_macros.hpp>
@@ -11,16 +13,24 @@
 #define FIRST_GET_ARG(arg) #arg << "=" << arg
 #define GET_ARG(arg) "&" << FIRST_GET_ARG(arg)
 #define BYTES_PER_PEER 6
+#define HANDSHAKE_SIZE 68
 
 json listen_to_announcer(const std::string &, const std::string &, const size_t &);
 
 Torrent::Torrent(const std::string &path)
 {
-	std::ifstream file(path, std::ios_base::in);
-	std::stringstream ss;
-	ss << file.rdbuf();
+	std::ifstream torrentFile(path, std::ios_base::in);
 
-	m_torrent = decode_bencoded_value(ss.str());
+	if (!torrentFile) {
+		std::stringstream error;
+		error << "Error opening torrent file: " << path << std::endl;
+		exit_with_message(error);
+	}
+
+	std::stringstream content;
+	content << torrentFile.rdbuf();
+
+	m_torrent = decode_bencoded_value(content.str());
 	SHA1 sha1;
 	json info = m_torrent["info"];
 	std::string pieces = info["pieces"];
@@ -62,6 +72,41 @@ std::vector<std::string> Torrent::getPeers()
 	}
 
 	return *m_peers;
+}
+
+std::string Torrent::handshake(const IpAddress &address) const
+{
+	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+
+	sockaddr_in serverAddress;
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_port = htons(address.port);
+	serverAddress.sin_addr.s_addr = inet_addr(address.ip.c_str());
+
+	if (connect(serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
+		exit_with_message("Couldn't connect, peer unreachable");
+	}
+
+	Handshake handshake(info_hash, gen_hash(20));
+	std::string request = handshake.formRequest();
+	int sent = send(serverSocket, request.c_str(), request.length(), 0);
+
+	if (sent == -1) {
+		close(serverSocket);
+		exit_with_message("Failed to send handshake");
+	}
+
+	unsigned char response[HANDSHAKE_SIZE];
+	int received = recv(serverSocket, response, sizeof(response), 0);
+
+	if (received == -1) {
+		close(serverSocket);
+		exit_with_message("Failed to receive handshake response");
+	}
+
+	Handshake peerHandshake = Handshake::parse(response, HANDSHAKE_SIZE);
+
+	return peerHandshake.peer_id;
 }
 
 json listen_to_announcer(const std::string &announce, const std::string &infoHash, const size_t &pieceLength)
