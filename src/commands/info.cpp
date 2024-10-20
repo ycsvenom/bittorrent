@@ -3,22 +3,22 @@
 #include <sstream>
 #include <string>
 
-#include "display_info.hpp"
+#include "info.hpp"
 #include <lib/bencode/bencode.hpp>
-#include <lib/torrent/reader.hpp>
+#include <lib/torrent/torrent.hpp>
 #include <lib/utils/utils.hpp>
 
-std::stringstream get_display_info_help(const std::string &name)
+std::stringstream get_info_help(const std::string &name)
 {
 	std::stringstream ss;
 	ss << "Usage: " << name << " info <torrent_path>";
 	return ss;
 }
 
-void display_info_command(int argc, char *argv[])
+void info_command(int argc, char *argv[])
 {
 	if (argc < 3) {
-		exit_with_message(get_display_info_help(argv[0]));
+		exit_with_message(get_info_help(argv[0]));
 	}
 
 	std::string path = argv[2];

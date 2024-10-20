@@ -3,16 +3,16 @@ PROG_DIR := src
 LIB_DIR := $(PROG_DIR)/lib
 PROG_FULLNAME := $(PROG_DIR)/$(PROG_OUT)
 PROG_IMPL_FILES := \
-$(wildcard $(PROG_DIR)/*.cpp) \
-$(wildcard $(LIB_DIR)/*/*.cpp) \
-$(wildcard $(PROG_DIR)/commands/*.cpp)
+$(wildcard $(PROG_DIR)/*.cpp \
+	$(LIB_DIR)/*/*.cpp \
+ 	$(PROG_DIR)/commands/*.cpp)
 
 TEST_OUT := test.o
 TEST_DIR := $(PROG_DIR)/tests
 TEST_FULLNAME := $(TEST_DIR)/$(TEST_OUT)
 TEST_IMPL_FILES := \
-$(wildcard $(TEST_DIR)/*_tests.cpp) \
-$(wildcard $(LIB_DIR)/*/*.cpp)
+$(wildcard $(TEST_DIR)/*_tests.cpp \
+	$(LIB_DIR)/*/*.cpp)
 
 CC := g++
 CFLAGS := -Wall -g -I$(PROG_DIR)

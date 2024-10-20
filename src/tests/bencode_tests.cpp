@@ -19,8 +19,8 @@ TEST_CASE("non-empty")
 
 TEST_CASE("invalid format")
 {
-	CHECK_THROWS_AS(decode_bencoded_value("a:hello").dump(), std::runtime_error);
-	CHECK_THROWS_AS(decode_bencoded_value("5hello").dump(), std::runtime_error);
+	REQUIRE_THROWS_AS(decode_bencoded_value("a:hello").dump(), std::invalid_argument);
+	REQUIRE_THROWS_AS(decode_bencoded_value("5hello").dump(), std::invalid_argument);
 }
 
 // test decoding integers
@@ -38,7 +38,7 @@ TEST_CASE("negative and positive")
 
 TEST_CASE("invalid format")
 {
-	CHECK_THROWS_AS(decode_bencoded_value("i1"), std::runtime_error);
+	REQUIRE_THROWS_AS(decode_bencoded_value("i1"), std::invalid_argument);
 }
 
 // test decoding lists
@@ -73,8 +73,8 @@ TEST_CASE("nested elements")
 
 TEST_CASE("invaild format")
 {
-	CHECK_THROWS_AS(decode_bencoded_value("li52e"), std::runtime_error);
-	CHECK_THROWS_AS(decode_bencoded_value("l1:h"), std::runtime_error);
+	REQUIRE_THROWS_AS(decode_bencoded_value("li52e"), std::invalid_argument);
+	REQUIRE_THROWS_AS(decode_bencoded_value("l1:h"), std::invalid_argument);
 }
 
 // test decoding dictionary
@@ -104,9 +104,9 @@ TEST_CASE("nested items")
 
 TEST_CASE("invalid format")
 {
-	CHECK_THROWS_AS(decode_bencoded_value("di4ee"), std::runtime_error);
-	CHECK_THROWS_AS(decode_bencoded_value("d1:he"), std::runtime_error);
-	CHECK_THROWS_AS(decode_bencoded_value("d1:hi2e"), std::runtime_error);
+	REQUIRE_THROWS_AS(decode_bencoded_value("di4ee"), std::invalid_argument);
+	REQUIRE_THROWS_AS(decode_bencoded_value("d1:he"), std::invalid_argument);
+	REQUIRE_THROWS_AS(decode_bencoded_value("d1:hi2e"), std::invalid_argument);
 }
 
 // ========== tests for decode_bencoded_value =================================

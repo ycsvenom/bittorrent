@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <string_view>
 
 #include "decode.hpp"
 #include <lib/bencode/bencode.hpp>

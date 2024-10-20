@@ -1,4 +1,5 @@
 #include <map>
+#include <string>
 #include <vector>
 
 #include "bencode.hpp"

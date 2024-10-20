@@ -4,10 +4,18 @@
 #include <sstream>
 #include <string>
 
+#define URL_UNRESERVED_CHAR "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~"
+
 void print(const std::string &text, bool isError);
 void print(const std::stringstream &ss, bool isError);
 void exit_with_message(const std::string &text);
 void exit_with_message(const std::stringstream &ss);
-std::string binary_string_to_hex(const std::string binaryString);
+void clear_stringstream(std::stringstream &ss, const std::string &value = std::string());
+std::string bin_to_hex(const std::string &bin);
+std::string hex_to_bin(const std::string &hex);
+std::string url_encode(const std::string &text);
+std::string gen_hash(size_t length);
+int randint(int min, int max);
+int randint(int max);
 
 #endif

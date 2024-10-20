@@ -1,3 +1,5 @@
+#include <string_view>
+
 #include "bencode.hpp"
 #include <debug_macros.hpp>
 
@@ -6,97 +8,98 @@
 #define IS_LIST(id) id == LIST_IDEN
 #define IS_DICT(id) id == DICT_IDEN
 
-json decode(const std::string &, size_t &);
+json decode(std::string_view &);
 
-json decode_string(const std::string &encodedValue, size_t &index)
+// Example: "5:hello" -> "hello"
+json decode_string(std::string_view &encodedValue)
 {
-	// Example: "5:hello" -> "hello"
-	size_t colonIndex = encodedValue.find(STR_SEP, index);
-	size_t sizeStringLength = colonIndex - index;
+	size_t colonIndex = encodedValue.find(STR_SEP);
 
-	if (colonIndex == std::string::npos)
-		throw std::runtime_error("Invalid encoded value: " + encodedValue);
+	if (colonIndex == std::string_view::npos)
+		throw std::invalid_argument("Invalid encoded value: " + std::string(encodedValue));
 
-	std::string sizeString = encodedValue.substr(index, sizeStringLength);
-	int64_t size = std::atoll(sizeString.c_str());
-	std::string str = encodedValue.substr(colonIndex + 1, size);
-	index += sizeStringLength + size + 1;
+	std::string_view sizeString = encodedValue.substr(0, colonIndex);
+	int64_t size = std::atoll(sizeString.data());
+	std::string_view str = encodedValue.substr(colonIndex + 1, size);
+	encodedValue.remove_prefix(colonIndex + size + sizeof(STR_SEP));
 
 	return json(str);
 }
 
-json decode_integer(const std::string &encodedValue, size_t &index)
+// Example: "i52e" -> 52
+json decode_integer(std::string_view &encodedValue)
 {
-	// Example: "i52e" -> 52
-	size_t endIndex = encodedValue.find(EOS, index);
-	size_t numberStringLength = endIndex - index - 1;
+	encodedValue.remove_prefix(sizeof(INT_IDEN));
+	size_t endIndex = encodedValue.find(EOS);
 
 	if (endIndex == std::string::npos)
-		throw std::runtime_error("Invalid encoded value: " + encodedValue);
+		throw std::invalid_argument("Invalid encoded value: " + std::string(encodedValue));
 
-	std::string numberString = encodedValue.substr(index + 1, numberStringLength);
-	int64_t number = std::atoll(numberString.c_str());
-	index += numberStringLength + 2;
+	std::string_view numberString = encodedValue.substr(0, endIndex);
+	int64_t number = std::atoll(numberString.data());
+	encodedValue.remove_prefix(endIndex + sizeof(EOS));
 
 	return json(number);
 }
 
-json decode_list(const std::string &encodedValue, size_t &index)
+// Example: "l5:helloi52ee" -> ["hello", 52]
+json decode_list(std::string_view &encodedValue)
 {
-	// Example: "l5:helloi52ee" -> ["hello", 52]
+	encodedValue.remove_prefix(sizeof(LIST_IDEN));
 	std::vector<json> list;
 
-	while (index < encodedValue.length() && encodedValue[index] != EOS) {
-		list.push_back(decode(encodedValue, index));
+	while (!encodedValue.empty() && encodedValue.front() != EOS) {
+		list.push_back(decode(encodedValue));
 	}
 
-	if (index >= encodedValue.length() || encodedValue[index] != EOS)
-		throw std::runtime_error("Invalid encoded value: " + encodedValue);
+	if (encodedValue.empty() || encodedValue.front() != EOS)
+		throw std::invalid_argument("Invalid encoded value: " + std::string(encodedValue));
 
-	// move to next segment
-	index++;
+	encodedValue.remove_prefix(sizeof(EOS));
 	return json(list);
 }
 
-json decode_dict(const std::string &encodedValue, size_t &index)
+// Example: "d3:foo3:bar5:helloi52ee" -> {"hello": 52, "foo":"bar"}
+json decode_dict(std::string_view &encodedValue)
 {
-	// Example: "d3:foo3:bar5:helloi52ee" -> {"hello": 52, "foo":"bar"}
+	encodedValue.remove_prefix(sizeof(DICT_IDEN));
 	std::map<json, json> dict;
 
-	while (index < encodedValue.length() && encodedValue[index] != EOS) {
-		json key = decode(encodedValue, index);
-		json value = decode(encodedValue, index);
+	while (!encodedValue.empty() && encodedValue.front() != EOS) {
+		json key = decode(encodedValue);
+		json value = decode(encodedValue);
 		dict[key] = value;
 	}
 
-	if (index >= encodedValue.length() || encodedValue[index] != EOS)
-		throw std::runtime_error("Invalid encoded value: " + encodedValue);
+	if (encodedValue.empty() || encodedValue.front() != EOS)
+		throw std::invalid_argument("Invalid encoded value: " + std::string(encodedValue));
 
+	encodedValue.remove_prefix(sizeof(EOS));
 	return json(dict);
 }
 
-json decode(const std::string &encodedValue, size_t &index)
+json decode(std::string_view &encodedValue)
 {
 	json decoded;
-	char identifier = encodedValue[index];
+	char identifier = encodedValue.front();
 
 	if (IS_STR(identifier))
-		decoded = decode_string(encodedValue, index);
+		decoded = decode_string(encodedValue);
 	else if (IS_INT(identifier))
-		decoded = decode_integer(encodedValue, index);
+		decoded = decode_integer(encodedValue);
 	else if (IS_LIST(identifier))
-		decoded = decode_list(encodedValue, ++index);
+		decoded = decode_list(encodedValue);
 	else if (IS_DICT(identifier))
-		decoded = decode_dict(encodedValue, ++index);
+		decoded = decode_dict(encodedValue);
 	else
-		throw std::runtime_error("Unhandled encoded value: " + encodedValue);
+		throw std::invalid_argument("Unhandled encoded value: " + std::string(encodedValue));
 
 	return decoded;
 }
 
 json decode_bencoded_value(const std::string &encodedValue)
 {
-	size_t index = 0;
-	json decoded = decode(encodedValue, index);
+	std::string_view sv(encodedValue);
+	json decoded = decode(sv);
 	return decoded;
 }
