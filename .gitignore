@@ -34,8 +34,11 @@
 *.out
 *.app
 bittorrent
+tests
+!tests/
 
 # CMake
+Makefile
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles

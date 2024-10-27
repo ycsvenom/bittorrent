@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PARSE_ARGUMENTS_H
 #define PARSE_ARGUMENTS_H
 

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PEERS_COMMAND_H
 #define PEERS_COMMAND_H
 

@@ -20,9 +20,9 @@ void peers_command(int argc, char *argv[])
 	}
 
 	std::string path = argv[2];
-	Torrent torrent(path);
+	TorrentClient client(path);
 
-	for (auto peer : torrent.getPeers()) {
+	for (auto peer : client.getPeers()) {
 		std::cout << peer << std::endl;
 	}
 }

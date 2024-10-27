@@ -1,3 +1,4 @@
+#pragma once
 #ifndef HANDSHAKE_COMMAND_H
 #define HANDSHAKE_COMMAND_H
 

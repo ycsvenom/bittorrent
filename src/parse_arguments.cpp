@@ -6,6 +6,7 @@
 #include <commands/handshake.hpp>
 #include <commands/info.hpp>
 #include <commands/peers.hpp>
+#include <commands/download_piece.hpp>
 #include <lib/utils/utils.hpp>
 
 void parse_arguments(int argc, char *argv[])
@@ -23,6 +24,9 @@ void parse_arguments(int argc, char *argv[])
 	}
 	else if (command == "handshake") {
 		handshake_command(argc, argv);
+	}
+	else if(command == "download_piece") {
+		download_piece_command(argc, argv);
 	}
 	else {
 		std::string message = "unknown command: " + command;

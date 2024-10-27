@@ -107,3 +107,28 @@ int randint(int max)
 {
 	return randint(0, max);
 }
+
+int bstoi(const std::string &binString)
+{
+	if (binString.size() > sizeof(size_t))
+		throw std::invalid_argument("sizes doesn't match");
+	int val = 0;
+	for (const auto &c : binString) {
+		val = (val << 8) | c;
+	}
+	return val;
+}
+
+std::string bitos(int x)
+{
+	std::stringstream ss;
+	int l = 0, r = 24;
+	for (size_t i = 0; i < 4; i++) {
+		int temp = x;
+		temp <<= l;
+		temp >>= r;
+		ss << (uint8_t)temp;
+		l += 8;
+	}
+	return ss.str();
+}

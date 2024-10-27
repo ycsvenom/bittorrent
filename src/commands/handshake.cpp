@@ -23,7 +23,7 @@ void handshake_command(int argc, char *argv[])
 	std::string path = argv[2];
 	IpAddress address(argv[3]);
 
-	Torrent torrent(path);
+	TorrentClient torrent(path);
 	std::string peerId = torrent.handshake(address);
 
 	std::cout << "Peer ID: " << peerId << std::endl;

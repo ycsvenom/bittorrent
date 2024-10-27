@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "doctest.h"
 #include <lib/utils/utils.hpp>
 
@@ -95,4 +97,58 @@ TEST_CASE("clear")
 	ss << "hello";
 	clear_stringstream(ss);
 	CHECK(ss.str() == "");
+}
+
+// ========== tests for bstoi ====================================
+
+TEST_CASE("zeros")
+{
+	std::stringstream ss;
+	ss << (uint8_t)0
+	   << (uint8_t)0
+	   << (uint8_t)0
+	   << (uint8_t)0;
+	CHECK(bstoi(ss.str()) == 0);
+}
+
+TEST_CASE("non-zero")
+{
+	std::stringstream ss;
+	ss << (uint8_t)0
+	   << (uint8_t)0
+	   << (uint8_t)20
+	   << (uint8_t)100;
+	CHECK(bstoi(ss.str()) == 5220);
+}
+
+// ========== tests for bitos ====================================
+
+TEST_CASE("zeros")
+{
+	std::stringstream ss;
+	ss << (uint8_t)0
+	   << (uint8_t)0
+	   << (uint8_t)0
+	   << (uint8_t)0;
+	CHECK(ss.str().size() == sizeof(int));
+}
+
+TEST_CASE("zeros")
+{
+	std::stringstream ss;
+	ss << (uint8_t)0
+	   << (uint8_t)0
+	   << (uint8_t)0
+	   << (uint8_t)0;
+	CHECK(bitos(0) == ss.str());
+}
+
+TEST_CASE("non-zero")
+{
+	std::stringstream ss;
+	ss << (uint8_t)0
+	   << (uint8_t)0
+	   << (uint8_t)20
+	   << (uint8_t)100;
+	CHECK(bitos(5220) == ss.str());
 }

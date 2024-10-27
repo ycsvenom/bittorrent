@@ -1,3 +1,4 @@
+#pragma once
 #ifndef INFO_COMMAND_H
 #define INFO_COMMAND_H
 

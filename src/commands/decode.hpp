@@ -1,3 +1,4 @@
+#pragma once
 #ifndef DECODE_COMMAND_H
 #define DECODE_COMMAND_H
 

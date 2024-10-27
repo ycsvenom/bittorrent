@@ -1,3 +1,4 @@
+#pragma once
 #ifndef UTILS_H
 #define UTILS_H
 
@@ -17,5 +18,7 @@ std::string url_encode(const std::string &text);
 std::string gen_hash(size_t length);
 int randint(int min, int max);
 int randint(int max);
+int bstoi(const std::string &binString);
+std::string bitos(int x);
 
 #endif

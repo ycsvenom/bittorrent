@@ -22,7 +22,7 @@ void info_command(int argc, char *argv[])
 	}
 
 	std::string path = argv[2];
-	Torrent torrent(path);
+	TorrentFile torrent(path);
 
 	std::cout << "Tracker URL: " << torrent.announce << std::endl;
 	std::cout << "Length: " << torrent.info_length << std::endl;
