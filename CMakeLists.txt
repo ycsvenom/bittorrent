@@ -29,9 +29,3 @@ target_include_directories(common PUBLIC src)
 target_include_directories(bittorrent PUBLIC src)
 target_include_directories(tests PUBLIC src)
 
-add_custom_target(
-    test
-    DEPENDS tests
-    COMMAND ./tests
-    COMMENT "\n\nTesting"
-)
