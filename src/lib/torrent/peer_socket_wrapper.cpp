@@ -4,7 +4,7 @@
 
 void PeerSocketWrapper::send(const PeerMessage &message) const
 {
-	auto data = message.formMessage();
+	auto data = message.form_message();
 	send(data);
 }
 
@@ -12,12 +12,11 @@ PeerMessage PeerSocketWrapper::recv() const
 {
 	size_t size = 0;
 	do {
-		size = bstoi(recv(4));
+		size = recv(4).pop_uint();
 	} while (!size);
-	auto body = std::string_view(recv(size));
-	auto type = static_cast<PeerMessagesType>(body.front());
-	body.remove_prefix(1);
-	std::string payload = std::string(body);
+	auto stream = recv(size);
+	auto type = static_cast<PeerMessagesType>(stream.pop_byte());
+	auto payload = stream;
 	auto message = PeerMessage(type, payload);
 	return message;
 }

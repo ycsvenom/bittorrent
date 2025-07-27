@@ -3,7 +3,7 @@
 
 // ========== tests for sha1_hash =============================================
 
-TEST_CASE("test for empty string")
+TEST_CASE("<SHA1> test for empty string")
 {
 	SHA1 sha1;
 	CHECK(sha1("") == "da39a3ee5e6b4b0d3255bfef95601890afd80709");

@@ -3,6 +3,7 @@
 
 #include "network.hpp"
 #include <debug_macros.hpp>
+#include <lib/containers/bytestream.hpp>
 #include <lib/utils/utils.hpp>
 
 SocketClient::SocketClient(IpAddress address)
@@ -17,38 +18,42 @@ SocketClient::SocketClient(IpAddress address)
 void SocketClient::connect()
 {
 	int response = ::connect(m_server_socket_fd, (struct sockaddr *)&m_server_address, sizeof(m_server_address));
-	if (response == -1) {
+	if (response == -1)
+	{
 		exit_with_message("Couldn't connect, peer unreachable");
 	}
 }
 
-void SocketClient::send(const std::string &message) const
+void SocketClient::send(const ByteStream &message) const
 {
-	std::string_view view(message);
-	do {
-		ssize_t sent = ::send(m_server_socket_fd, view.data(), view.size(), 0);
-		if (sent == -1) {
+	size_t total = 0;
+	do
+	{
+		ssize_t sent = ::send(m_server_socket_fd, &message[total], message.size() - total, 0);
+		if (sent == -1)
+		{
 			close(m_server_socket_fd);
 			exit_with_message("Failed to send message");
 		}
-		view.remove_prefix(sent);
-	} while (view.size());
+		total += sent;
+	} while (total < message.size());
 }
 
-std::string SocketClient::recv(int count) const
+ByteStream SocketClient::recv(int count) const
 {
 	std::vector<uint8_t> buffer(MAX_BUFFER_SIZE);
 	ssize_t total = 0;
-	do {
+	do
+	{
 		int received = ::recv(m_server_socket_fd, &buffer[total], count - total, 0);
-		if (received == -1) {
+		if (received == -1)
+		{
 			close(m_server_socket_fd);
 			exit_with_message("Failed to receive message response");
 		}
 		total += received;
 	} while (total < count);
-
-	std::string message(buffer.cbegin(), buffer.cbegin() + count);
+	ByteStream message(buffer, count);
 	return message;
 }
 

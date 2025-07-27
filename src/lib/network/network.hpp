@@ -6,6 +6,8 @@
 #include <string>
 #include <sys/socket.h>
 
+#include <lib/containers/bytestream.hpp>
+
 #define INFO_HASH_SIZE 20
 #define PEER_ID_SIZE 20
 #define RESERVED_BYTES_SIZE 8
@@ -47,9 +49,9 @@ public:
 	std::string peer_id;
 
 	Handshake(const std::string &infoHash, const std::string &peerId, const std::string &protocol = "BitTorrent protocol");
-	std::string formRequest() const;
+	ByteStream form_request() const;
 
-	static Handshake parse(const std::string &buffer);
+	static Handshake parse(ByteStream buffer);
 };
 
 // [PeerMessage]
@@ -57,17 +59,18 @@ public:
 class PeerMessage {
 private:
 	PeerMessagesType m_message_type;
-	std::string m_payload;
+	ByteStream m_payload;
 
 public:
-	PeerMessage(PeerMessagesType type, const std::string &payload = "");
-	std::string formMessage() const;
-	std::string getPayload() const;
-	PeerMessagesType getType() const;
+	PeerMessage(PeerMessagesType type);
+	PeerMessage(PeerMessagesType type, const ByteStream &payload);
+	ByteStream form_message() const;
+	ByteStream get_payload() const;
+	PeerMessagesType get_type() const;
 	bool isType(const PeerMessagesType &type) const;
 	ssize_t size() const;
 
-	static PeerMessage parse(const std::string &data);
+	static PeerMessage parse(ByteStream data);
 };
 
 class SocketClient {
@@ -78,8 +81,8 @@ private:
 public:
 	SocketClient(IpAddress address);
 	void connect();
-	void send(const std::string &message) const;
-	std::string recv(int count) const;
+	void send(const ByteStream &data) const;
+	ByteStream recv(int count) const;
 	~SocketClient();
 };
 

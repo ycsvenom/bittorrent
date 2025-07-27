@@ -51,9 +51,12 @@ public:
 
 	TorrentClient(const std::string &path);
 	TorrentClient(const TorrentFile &torrent);
+
 	std::vector<IpAddress> getPeers();
 	std::string handshake(const IpAddress &address);
 	void downloadPiece(const std::string &path, size_t pieceIndex) const;
+
+	~TorrentClient();
 };
 
 #endif

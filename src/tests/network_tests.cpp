@@ -9,16 +9,16 @@
 
 // ========== tests for IpAddress =============================================
 
-TEST_CASE("testing constructor")
+TEST_CASE("<IpAddress> constructor")
 {
 	std::string ip = "127.0.0.1";
 	uint16_t port = 443;
-	std::stringstream addressStream;
+	ByteStream addressStream;
 
 	SUBCASE("valid")
 	{
-		addressStream << ip << ':' << port;
-		std::string address = addressStream.str();
+		addressStream << ip << ':' << std::to_string(port);
+		std::string address = addressStream.pop_str();
 		IpAddress addr(address);
 
 		CHECK(addr.ip == ip);
@@ -28,13 +28,13 @@ TEST_CASE("testing constructor")
 	SUBCASE("invalid")
 	{
 		addressStream << ip << port;
-		std::string address = addressStream.str();
+		std::string address = addressStream.pop_str();
 
 		CHECK_THROWS_AS(IpAddress addr(address), std::invalid_argument);
 	}
 }
 
-TEST_CASE("testing stream insertion operator")
+TEST_CASE("<IpAddress> stream insertion operator")
 {
 	auto address = IpAddress("192.168.0.0", 443);
 	std::stringstream ss;
@@ -44,12 +44,12 @@ TEST_CASE("testing stream insertion operator")
 
 // ========== tests for Handshake =============================================
 
-TEST_CASE("testing formRequest & parse")
+TEST_CASE("<Handshake> form_request & parse")
 {
 	std::string protocol = "hello";
 	std::string infoHash = "01234567890123456789";
 	std::string peerId = "12345678901234567890";
-	std::stringstream ss;
+	ByteStream stream;
 
 	/*
 		packet = [protocol_size]
@@ -58,35 +58,35 @@ TEST_CASE("testing formRequest & parse")
 				 [info_hash]
 				 [peed_id]
 	*/
-	ss << (uint8_t)protocol.size()
-	   << protocol
-	   << (uint8_t)0
-	   << (uint8_t)0
-	   << (uint8_t)0
-	   << (uint8_t)0
-	   << (uint8_t)0
-	   << (uint8_t)0
-	   << (uint8_t)0
-	   << (uint8_t)0
-	   << infoHash
-	   << peerId;
+	stream << (uint8_t)protocol.size()
+		   << protocol
+		   << (uint8_t)0
+		   << (uint8_t)0
+		   << (uint8_t)0
+		   << (uint8_t)0
+		   << (uint8_t)0
+		   << (uint8_t)0
+		   << (uint8_t)0
+		   << (uint8_t)0
+		   << infoHash
+		   << peerId;
 
 	SUBCASE("parse")
 	{
-		auto handshake = Handshake::parse(ss.str());
+		auto handshake = Handshake::parse(stream);
 		CHECK(hex_to_bin(handshake.info_hash) == infoHash);
 		CHECK(hex_to_bin(handshake.peer_id) == peerId);
 		CHECK(handshake.protocol == protocol);
 	}
 
-	SUBCASE("formRequest")
+	SUBCASE("form_request")
 	{
 		auto handshake = Handshake(infoHash, peerId, protocol);
-		CHECK(handshake.formRequest() == ss.str());
+		CHECK(handshake.form_request() == stream);
 	}
 }
 
-TEST_CASE("peerId and infoHash should must equal to their size")
+TEST_CASE("<Handshake> peerId and infoHash should must equal to their size")
 {
 	std::string protocol = "hello";
 	std::string infoHash = "01234567890123456789";
@@ -97,36 +97,36 @@ TEST_CASE("peerId and infoHash should must equal to their size")
 
 // ========== tests for PeerMessage ===========================================
 
-TEST_CASE("formMessage & parse")
+TEST_CASE("<PeerMessage> form_message & parse")
 {
 	auto type = PeerMessagesType::BITFIELD;
-	std::string payload = "01234567890123456789";
-	std::stringstream ss;
+	ByteStream payload("01234567890123456789");
+	ByteStream stream;
 
 	/*
 		packet = [message size]
 				 [type]
 				 [payload]
 	*/
-	ss << bitos(payload.size() + 1)
-	   << (uint8_t)type
-	   << payload;
+	stream << payload.size() + 1
+		   << (uint8_t)type
+		   << payload;
 
 	SUBCASE("parse")
 	{
-		auto message = PeerMessage::parse(ss.str());
-		CHECK(message.getType() == type);
-		CHECK(message.getPayload() == payload);
+		auto message = PeerMessage::parse(stream);
+		CHECK(message.get_type() == type);
+		CHECK(message.get_payload() == payload);
 	}
 
-	SUBCASE("formMessage")
+	SUBCASE("form_message")
 	{
 		auto message = PeerMessage(type, payload);
-		CHECK(message.formMessage() == ss.str());
+		CHECK(message.form_message() == stream);
 	}
 }
 
-TEST_CASE("testing isType")
+TEST_CASE("<PeerMessage> is_type")
 {
 	auto message = PeerMessage(PeerMessagesType::BITFIELD);
 	CHECK(message.isType(PeerMessagesType::BITFIELD));
@@ -134,14 +134,14 @@ TEST_CASE("testing isType")
 
 // ========== tests for SocketClient ===========================================
 
-TEST_CASE("send")
+TEST_CASE("<SocketClient> send")
 {
 	auto addr = reserve_address();
 	int server_sockfd = make_server(addr);
 	auto client = SocketClient(addr);
 
-	auto size = MAX_BUFFER_SIZE;
-	auto text = std::string(size, '0');
+	auto size = 2048;
+	auto text = ByteStream(std::string(size, '0'));
 	std::vector<uint8_t> buffer(size);
 	client.connect();
 	client.send(text);
@@ -151,11 +151,11 @@ TEST_CASE("send")
 	while (total < size)
 		total += recv(conn, &buffer[total], size - total, 0);
 
-	std::string message(buffer.cbegin(), buffer.cbegin() + size);
+	ByteStream message(buffer, size);
 	CHECK(message == text);
 }
 
-TEST_CASE("recv")
+TEST_CASE("<SocketClient> recv")
 {
 	auto addr = reserve_address();
 	int server_sockfd = make_server(addr);

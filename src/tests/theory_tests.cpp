@@ -7,7 +7,7 @@
 #include <debug_macros.hpp>
 #include <lib/utils/utils.hpp>
 
-TEST_CASE("test string related theories")
+TEST_CASE("<THEORY> test string related theories")
 {
 	std::stringstream ss;
 	ss << "hello" << (uint8_t)0 << (uint8_t)0 << " world";
@@ -18,7 +18,7 @@ TEST_CASE("test string related theories")
 	}
 }
 
-TEST_CASE("multiple no-terminator strings to ss")
+TEST_CASE("<THEORY> multiple no-terminator strings to ss")
 {
 	std::stringstream ss;
 	ss << bitos(0)
@@ -28,7 +28,7 @@ TEST_CASE("multiple no-terminator strings to ss")
 	CHECK(out.size() == 12);
 }
 
-TEST_CASE("string_view size is actual size")
+TEST_CASE("<THEORY> string_view size is actual size")
 {
 	std::stringstream ss;
 	ss << bitos(0)

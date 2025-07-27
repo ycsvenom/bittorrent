@@ -21,7 +21,7 @@ std::string make_message(const PeerMessage &message)
 {
 	std::stringstream error;
 	error << "incorrect message type "
-		  << (int)message.getType()
+		  << (int)message.get_type()
 		  << "[!]";
 	return error.str();
 }
@@ -67,7 +67,7 @@ std::string TorrentClient::handshake(const IpAddress &address)
 
 	m_peer_id = bin_to_hex(gen_hash(PEER_ID_SIZE));
 	Handshake handshake(hex_to_bin(m_torrent.info_hash), hex_to_bin(m_peer_id));
-	auto request = handshake.formRequest();
+	auto request = handshake.form_request();
 	m_client->send(request);
 
 	auto received = m_client->recv(HANDSHAKE_SIZE);
@@ -91,7 +91,7 @@ void TorrentClient::downloadPiece(const std::string &path, size_t pieceIndex) co
 		exit_with_message(make_message(message));
 
 	m_client->send(PeerMessage(PeerMessagesType::INTERESTED));
-	
+
 	message = m_client->recv();
 	if (!message.isType(PeerMessagesType::UNCHOKE))
 		exit_with_message(make_message(message));
@@ -101,31 +101,35 @@ void TorrentClient::downloadPiece(const std::string &path, size_t pieceIndex) co
 
 	while (size > 0) {
 		size_t blockSize = size > BLOCK_SIZE ? BLOCK_SIZE : size;
-		std::stringstream ss;
-		ss << bitos(pieceIndex)
-		   << bitos(BLOCK_SIZE * (blockIndex++))
-		   << bitos(blockSize);
-		m_client->send(PeerMessage(PeerMessagesType::REQUEST, ss.str()));
-		
+		ByteStream stream;
+		stream << bitos(pieceIndex)
+			   << bitos(BLOCK_SIZE * (blockIndex++))
+			   << bitos(blockSize);
+		m_client->send(PeerMessage(PeerMessagesType::REQUEST, stream));
+
 		message = m_client->recv();
-		// if (!message.isType(PeerMessagesType::PIECE))
-		// 	exit_with_message(make_message(message));
+		if (!message.isType(PeerMessagesType::PIECE))
+			exit_with_message(make_message(message));
 
-		auto payload = std::string_view(message.getPayload());
-
-		[[maybe_unused]]
-		auto index = bstoi(std::string(payload.substr(0, sizeof(int))));
-		payload.remove_prefix(sizeof(int));
+		auto payload = message.get_payload();
 
 		[[maybe_unused]]
-		auto begin = bstoi(std::string(payload.substr(0, sizeof(int))));
-		payload.remove_prefix(sizeof(int));
+		auto index = payload.pop_uint();
+
+		[[maybe_unused]]
+		auto begin = payload.pop_uint();
 
 		auto block = payload;
 
 		out << block;
 		size -= block.size();
 	}
+}
+
+TorrentClient::~TorrentClient()
+{
+	delete m_client;
+	delete m_peers;
 }
 
 json listen_to_announcer(const TorrentFile &torrent)
